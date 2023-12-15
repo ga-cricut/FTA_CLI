@@ -1,6 +1,5 @@
 import BifrostController
 import bifrost_client_api_pb2
-import MachineController
 
 cli = BifrostController.Bifrost()
 cli.print_stdout = False

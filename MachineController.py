@@ -1,4 +1,3 @@
-import time
 import bifrost_client_api_pb2
 from google.protobuf import text_format
 
@@ -54,3 +53,13 @@ class Machine:
       activation_state_response = bifrost_client_api_pb2.GetProductActivatedStateResponse()
       text_format.Parse(proto_string, activation_state_response)
       return activation_state_response
+
+class Underminer(Machine):
+
+    def __init__(self, bifrost, device_id):
+        super().__init__(bifrost, device_id)
+
+class Dumbledore(Machine):
+
+    def __init__(self, bifrost, device_id):
+        super().__init__(bifrost, device_id)

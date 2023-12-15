@@ -74,10 +74,10 @@ class Bifrost:
     return self.underminer("underminer")
 
   def underminer(self, device_id):
-    return MachineController.Machine(self, device_id)
+    return MachineController.Underminer(self, device_id)
 
   def dumbledore(self, device_id):
-    return MachineController.Machine(self, device_id)
+    return MachineController.Dumbledore(self, device_id)
 
   def quit(self):
     self.send("quit")
