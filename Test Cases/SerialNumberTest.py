@@ -2,10 +2,11 @@ import BifrostController
 import bifrost_client_api_pb2
 import MachineController
 
+
 cli = BifrostController.Bifrost()
 cli.print_stdout = False
 cli.launch()
-und = MachineController.Underminer(cli, "underminer")
+und = MachineController.Underminer(cli, "underminer", None)
 und.connect_tcp_ip()
 #und = MachineController.Underminer(cli, "underminer_usb_serial_0")
 #und.connect()

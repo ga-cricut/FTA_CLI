@@ -11,6 +11,7 @@ class Bifrost:
 
   def __init__(self):
     bifrost_cli_path = os.path.join(os.path.dirname(__file__), ("bifrost_swift_cli_windows_0.0.14-alpha/bifrost_cli.exe"))
+    print("PATH to Bifrost: " + bifrost_cli_path)
     self.process_path = bifrost_cli_path
 
   def launch(self):
