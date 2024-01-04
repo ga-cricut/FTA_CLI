@@ -3,6 +3,9 @@ import MachineController
 import bifrost_client_api_pb2
 import time
 
+# Global Variables declaration
+Dev_Board = False
+
 # Creat an object of Bifrost Class
 cli = BifrostController.Bifrost()
 
@@ -13,7 +16,10 @@ cli.print_stdout = False
 cli.launch()
 
 # Creat an object of Underminer Class
-und = MachineController.Underminer(cli,"underminer_usb_serial_0", "underminer_bootloader_usb_hid_1")
+if Dev_Board == True:
+  und = MachineController.Underminer(cli,"underminer_usb_serial_0", "underminer_bootloader_usb_hid_1")
+else:
+  und = MachineController.Underminer(cli, "underminer", "underminer_bootloader_ip_tcp_1")
 
 # Connect to the machine
 und.connect()
@@ -44,9 +50,9 @@ und.connect_bootloader()
 # Start Firmware update
 firmware_update_finished_response = und.firmware_update()
 
-# Check the Firmware update status
-print(firmware_update_finished_response.success)
-print(firmware_update_finished_response.failure)
+# Check the Firmware update status (Not printing useful information currently)
+# print(firmware_update_finished_response.success)
+# print(firmware_update_finished_response.failure)
 
 # Disconnect with the machine and quit the proccess
 und.disconnect()
