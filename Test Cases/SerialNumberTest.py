@@ -6,10 +6,9 @@ import MachineController
 cli = BifrostController.Bifrost()
 cli.print_stdout = False
 cli.launch()
-und = MachineController.Underminer(cli, "underminer", None)
-und.connect_tcp_ip()
-#und = MachineController.Underminer(cli, "underminer_usb_serial_0")
-#und.connect()
+# und = MachineController.Underminer(cli, "underminer", None)
+und = MachineController.Underminer(cli, "underminer_usb_serial_0", None)
+und.connect()
 handshake_response = und.handshake()
 if handshake_response.status != bifrost_client_api_pb2.CONNECTION_HANDSHAKE_STATUS_OK:
   print(bifrost_client_api_pb2.CONNECTION_HANDSHAKE_STATUS_OK)
