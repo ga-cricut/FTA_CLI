@@ -10,26 +10,15 @@ class Machine:
         self.bootloader_id = bootloader_id
 
     def connect(self):
-        if self.device_id == "underminer_usb_serial_0" or self.device_id == "underminer_usb_serial_1":
-            self.bifrost.send("connect attach device " + self.device_id)
-        elif self.device_id == "underminer":
-            self.bifrost.send("connect_tcp_ip attach device_type " + self.device_id)
-            self.bifrost.wait_for("on_device_connected")
-        else:
-            print("Connection Fail: Check the device id")
+        self.bifrost.send("connect attach device " + self.device_id)
+    
+    def connect_tcp_ip(self):
+        self.bifrost.send("connect_tcp_ip attach device_type " + self.device_id)
+        self.bifrost.wait_for("on_device_connected")
 
     def connect_bootloader(self):
-        if self.bootloader_id == "underminer_bootloader_usb_hid_0" or self.bootloader_id == "underminer_bootloader_usb_hid_1":
-            self.bifrost.send("connect attach device " + self.bootloader_id)
-            self.bifrost.wait_for("on_device_connected")
-        elif self.bootloader_id == "underminer_bootloader_ip_tcp_0" or self.bootloader_id == "underminer_bootloader_ip_tcp_1":
-            self.disconnect()
-            self.bifrost.quit()
-            self.bifrost.launch()
-            self.bifrost.send("connect_tcp_ip attach device_type underminer_bootloader")
-            self.bifrost.wait_for("on_device_connected")
-        else:
-            print("Connection Fail: Check the bootloader id")
+        self.bifrost.send("connect attach device " + self.bootloader_id)
+        self.bifrost.wait_for("on_device_connected")
 
     def handshake(self):
         self.bifrost.send("handshake")
@@ -79,16 +68,12 @@ class Machine:
         return Reboot_Response
 
     def firmware_update(self):
-        if self.device_id == "underminer":
-            self.bifrost.send("firmware_update device " + self.bootloader_id + " file Firmware/und_v50020.9_X10_pb18.8.bin.enc")
-            return None
-        else:
-            self.bifrost.send("firmware_update device " + self.bootloader_id + " file Firmware/und_v50020.9_X10_pb18.8.bin.enc")
-            proto_string = self.bifrost.parse_proto_string()
-            firmware_update_finished_response = bifrost_client_api_pb2.FirmwareUpdateFinishedResponse()
-            text_format.Parse(proto_string, firmware_update_finished_response)
-            self.bifrost.wait_for("on_device_disconnected")
-            return firmware_update_finished_response
+        self.bifrost.send("firmware_update device " + self.bootloader_id + " file und_v50020.9_X10_pb18.8.bin.enc")
+        proto_string = self.bifrost.parse_proto_string()
+        firmware_update_finished_response = bifrost_client_api_pb2.FirmwareUpdateFinishedResponse()
+        text_format.Parse(proto_string, firmware_update_finished_response)
+        self.bifrost.wait_for("on_device_disconnected")
+        return firmware_update_finished_response
     
     def plot_ready(self):
         print("parent class: plot_read")
@@ -100,8 +85,46 @@ class Machine:
     
 class Underminer(Machine):
 
-    def __init__(self, bifrost, device_id, bootloader_id):
-        super().__init__(bifrost, device_id, bootloader_id)
+    def __init__(self,bifrost):
+        self.bifrost = bifrost
+
+    def connect(self, Dev_Board):
+        if Dev_Board:
+            self.bifrost.send("list_devices")
+            device_id = self.bifrost.ID_Seeker("underminer_usb_serial_")
+            self.bifrost.send("connect attach device " + device_id)
+            return device_id
+        else:
+            self.bifrost.send("connect_tcp_ip attach device_type underminer")
+            self.bifrost.wait_for("on_device_connected")
+
+    def connect_bootloader(self, Dev_Board):
+        if Dev_Board:
+            self.bifrost.send("list_devices")
+            bootloader_id = self.bifrost.ID_Seeker("underminer_bootloader_usb_hid_")
+            self.bifrost.send("connect attach device " + bootloader_id)
+            return bootloader_id       
+        else:       
+            self.disconnect()
+            self.bifrost.quit()
+            self.bifrost.launch()
+            self.bifrost.send("connect_tcp_ip attach device_type underminer_bootloader")
+            self.bifrost.wait_for("on_device_connected")
+            self.bifrost.send("list_devices")
+            bootloader_id = self.bifrost.ID_Seeker("underminer_bootloader_ip_tcp_")            
+            return bootloader_id 
+
+    def firmware_update(self, Dev_Board, Bootloader_ID):
+        if Dev_Board:
+            self.bifrost.send("firmware_update device " + Bootloader_ID + " file Firmware/und_v50020.9_X10_pb18.8.bin.enc")
+            proto_string = self.bifrost.parse_proto_string()
+            firmware_update_finished_response = bifrost_client_api_pb2.FirmwareUpdateFinishedResponse()
+            text_format.Parse(proto_string, firmware_update_finished_response)
+            self.bifrost.wait_for("on_device_disconnected")
+            return firmware_update_finished_response            
+        else:
+            self.bifrost.send("firmware_update device " + Bootloader_ID + " file Firmware/und_v50020.9_X10_pb18.8.bin.enc")
+            return None            
 
     def plot_ready(self):
         self.bifrost.send("plot_ready ready_to_plot true")
