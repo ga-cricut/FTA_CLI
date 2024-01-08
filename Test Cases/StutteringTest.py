@@ -4,8 +4,8 @@ import bifrost_client_api_pb2
 import time
 
 # Global Variables declaration
-Motor_Connnected = False
-Dev_Board = False
+Motor_Connnected = True
+Dev_Board = True
 
 # Creat an object of Bifrost Class
 cli = BifrostController.Bifrost()
@@ -17,13 +17,10 @@ cli.print_stdout = True
 cli.launch()
 
 # Creat an object of Underminer Class
-if Dev_Board == True:
-  und = MachineController.Underminer(cli,"underminer_usb_serial_0", "underminer_bootloader_usb_hid_1")
-else:
-  und = MachineController.Underminer(cli, "underminer", "underminer_bootloader_ip_tcp_1")
+und = MachineController.Underminer(cli)
 
 # Connect to the machine/Loki(SW Simulator)
-und.connect()
+Device_ID = und.connect(Dev_Board)
 
 # Generate handshake and check if it's done successfully
 handshake_response = und.handshake()
@@ -43,13 +40,14 @@ print(Reboot_Response)
 #   pass
 
 # Wait for bootloader to sattle
-time.sleep(5)
+if Dev_Board:
+  time.sleep(5)
 
 # Connect to the bootloader
-und.connect_bootloader()
+Bootloader_ID = und.connect_bootloader(Dev_Board)
 
 # Start Firmware update
-firmware_update_finished_response = und.firmware_update()
+firmware_update_finished_response = und.firmware_update(Dev_Board,Bootloader_ID)
 
 # Check the Firmware update status (Not printing useful information currently)
 # print(firmware_update_finished_response.success)
@@ -58,7 +56,7 @@ firmware_update_finished_response = und.firmware_update()
 # Time compensation for homing sequence
 if Motor_Connnected == True:
     print("Wait for machine to finish the homimg sequence")
-    time.sleep(60)
+    time.sleep(30)
 
 # Disconnect with the machine and quit the proccess
 und.disconnect()
@@ -68,7 +66,7 @@ und.disconnect()
 cli.launch()
 
 # Connect to the machine
-und.connect()
+und.connect(Dev_Board)
 
 # Generate handshake and check if it's done successfully
 handshake_response = und.handshake()
