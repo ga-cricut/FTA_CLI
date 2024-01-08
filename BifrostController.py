@@ -21,9 +21,16 @@ class Bifrost:
       if self.print_stdout:
         print(line, end="")
       if (success_string in line):
-        return
+        return True
       if ("error: " in line):
-        return
+        return False
+      
+  def ID_Seeker(self, success_string):
+    while(True):
+      line = self.cli_process.stdout.readline()
+      if (success_string in line):
+        ID = success_string + line[-2]
+        return ID
 
   def parse_proto_string(self):
     end_found = False
